@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, CircularProgress, Container, Stack, Typography } from "@mui/material"
+import { Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material"
 import { useEffect, useMemo, useState } from "react"
 import { Stages } from "./types"
 import { Stage } from "./Stage"
@@ -11,10 +11,6 @@ const defaultStages: Stages = {
   Discovery: { "Create roadmap": true, "Competitor analysis": false },
   Delivery: { "Release marketing website": false, "Release MVP": false },
 }
-
-// TODO:
-// - remove steps
-// - add stage
 
 const fetchRandomFact = async () => await fetch("https://uselessfacts.jsph.pl/api/v2/facts/random")
 
@@ -35,9 +31,18 @@ export default function Home() {
   const clearStages = () => updateStages({})
   const resetStages = () => updateStages(defaultStages)
 
-  const stageLabels = useMemo(() => (stages ? Object.keys(stages) : []), [stages])
+  const [addingStage, setAddingStage] = useState(false)
+  const [stageLabel, setStageLabel] = useState("")
+
+  const done = () => {
+    setStages({ ...stages, [stageLabel]: {} })
+    setAddingStage(false)
+    setStageLabel("")
+  }
 
   const [fact, setFact] = useState("")
+
+  const stageLabels = useMemo(() => (stages ? Object.keys(stages) : []), [stages])
 
   useEffect(() => {
     if (!stages) return
@@ -62,16 +67,48 @@ export default function Home() {
         {!stages ? (
           <CircularProgress />
         ) : (
-          stageLabels.map((label, index) => (
-            <Stage
-              key={index}
-              label={label}
-              stages={stages}
-              updateStages={updateStages}
-              previousStageLabel={stageLabels[index - 1]}
-              nextStageLabel={stageLabels[index + 1]}
-            />
-          ))
+          <>
+            {stageLabels.map((label, index) => (
+              <Stage
+                key={index}
+                label={label}
+                stages={stages}
+                updateStages={updateStages}
+                previousStageLabel={stageLabels[index - 1]}
+                nextStageLabel={stageLabels[index + 1]}
+              />
+            ))}
+            {!addingStage ? (
+              <div>
+                <Button variant="outlined" onClick={() => setAddingStage(true)}>
+                  + Add stage
+                </Button>
+              </div>
+            ) : (
+              <Stack direction="row" gap={2}>
+                <TextField
+                  autoFocus
+                  placeholder="New step"
+                  onChange={(e) => setStageLabel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") done()
+                  }}
+                />
+                <Button variant="outlined" onClick={done}>
+                  Done
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setAddingStage(false)
+                    setStageLabel("")
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Stack>
+            )}
+          </>
         )}
       </Container>
       <Container>
