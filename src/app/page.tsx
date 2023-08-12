@@ -63,7 +63,7 @@ export default function Home() {
 
   return (
     <Stack component="main" sx={{ minHeight: "100vh" }}>
-      <Container>
+      <Container sx={{ mt: 4 }}>
         {!stages ? (
           <CircularProgress />
         ) : (
@@ -111,7 +111,7 @@ export default function Home() {
           </>
         )}
       </Container>
-      <Container>
+      <Container sx={{ mt: 4 }}>
         <Stack direction="row" gap={2} justifyContent="center">
           <Button variant="outlined" onClick={clearStages}>
             Clear stages
