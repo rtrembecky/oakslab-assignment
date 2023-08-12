@@ -12,6 +12,11 @@ const defaultStages: Stages = {
   Delivery: { "Release marketing website": false, "Release MVP": false },
 }
 
+// TODO:
+// - remove steps
+// - add stage
+// - all done
+
 export default function Home() {
   const [stages, setStages] = useState<Stages>()
 
@@ -22,16 +27,14 @@ export default function Home() {
 
   useEffect(() => {
     const storage = loadFromLocalStorage()
-
-    if (storage != null) {
-      setStages(storage)
-    } else {
-      setStages(defaultStages)
-    }
+    if (storage) setStages(storage)
+    else setStages(defaultStages)
   }, [])
 
   const clearStages = () => updateStages({})
   const resetStages = () => updateStages(defaultStages)
+
+  const stageLabels = stages ? Object.keys(stages) : []
 
   return (
     <Stack component="main" sx={{ minHeight: "100vh" }}>
@@ -39,12 +42,14 @@ export default function Home() {
         {!stages ? (
           <CircularProgress />
         ) : (
-          Object.keys(stages).map((label, index) => (
+          stageLabels.map((label, index) => (
             <Stage
               key={index}
               label={label}
-              steps={stages[label]}
-              setSteps={(steps) => updateStages({ ...stages, [label]: steps })}
+              stages={stages}
+              updateStages={updateStages}
+              previousStageLabel={stageLabels[index - 1]}
+              nextStageLabel={stageLabels[index + 1]}
             />
           ))
         )}
