@@ -1,7 +1,7 @@
 "use client"
 
-import { Button, CircularProgress, Container, Stack } from "@mui/material"
-import { useEffect, useState } from "react"
+import { Button, CircularProgress, Container, Stack, Typography } from "@mui/material"
+import { useEffect, useMemo, useState } from "react"
 import { Stages } from "./types"
 import { Stage } from "./Stage"
 import { clearLocalStorage, loadFromLocalStorage, saveToLocalStorage } from "./localStorage"
@@ -15,7 +15,8 @@ const defaultStages: Stages = {
 // TODO:
 // - remove steps
 // - add stage
-// - all done
+
+const fetchRandomFact = async () => await fetch("https://uselessfacts.jsph.pl/api/v2/facts/random")
 
 export default function Home() {
   const [stages, setStages] = useState<Stages>()
@@ -34,7 +35,26 @@ export default function Home() {
   const clearStages = () => updateStages({})
   const resetStages = () => updateStages(defaultStages)
 
-  const stageLabels = stages ? Object.keys(stages) : []
+  const stageLabels = useMemo(() => (stages ? Object.keys(stages) : []), [stages])
+
+  const [fact, setFact] = useState("")
+
+  useEffect(() => {
+    if (!stages) return
+
+    const completed = stageLabels.every((label) => {
+      const steps = stages[label]
+      return Object.values(steps).every((value) => value)
+    })
+
+    if (completed) {
+      fetchRandomFact()
+        .then((response) => response.json())
+        .then((data) => setFact(data.text))
+    } else {
+      setFact("")
+    }
+  }, [stageLabels, stages])
 
   return (
     <Stack component="main" sx={{ minHeight: "100vh" }}>
@@ -67,6 +87,12 @@ export default function Home() {
           </Button>
         </Stack>
       </Container>
+
+      {fact && (
+        <Container sx={{ mt: 8, textAlign: "center" }}>
+          <Typography>{fact}</Typography>
+        </Container>
+      )}
     </Stack>
   )
 }
