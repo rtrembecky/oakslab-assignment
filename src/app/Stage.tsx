@@ -34,7 +34,8 @@ export const Stage: FC<StageProps> = ({ label, stages, updateStages, previousSta
   const nextStageSteps = nextStageLabel ? stages[nextStageLabel] : undefined
   const nextStageInProgress = nextStageSteps ? Object.values(nextStageSteps).some((value) => value) : false
 
-  const locked = previousStageInProgress || nextStageInProgress
+  const lockedCheckboxes = previousStageInProgress || nextStageInProgress
+  const canAddSteps = !nextStageInProgress
 
   return (
     <Stack>
@@ -48,10 +49,10 @@ export const Stage: FC<StageProps> = ({ label, stages, updateStages, previousSta
           label={label}
           value={steps[label]}
           onChange={(value) => setSteps({ ...steps, [label]: value })}
-          locked={locked}
+          locked={lockedCheckboxes}
         />
       ))}
-      {!locked &&
+      {canAddSteps &&
         (!addingStep ? (
           <div>
             <Button variant="outlined" onClick={() => setAddingStep(true)}>
